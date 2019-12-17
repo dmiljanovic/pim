@@ -79,8 +79,6 @@ include '_partial/header.php';
 
         $("#buy").click(function(event) {
             event.preventDefault();
-            var amountToBuy = $("#amount_to_buy").val();
-            var amountToPay = $("#amount_to_pay").val();
 
             if (!quoteString || !amountToBuy || !amountToPay) {
                 $("#info_alert")

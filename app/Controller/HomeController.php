@@ -59,19 +59,19 @@ class HomeController extends BaseController
     public function saveData()
     {
         $dataToBeSaved = $this->prepareDataForSaving();
-        $data = [];
+        $dataResponse = [];
 
         try {
             $this->repo->saveOrder($dataToBeSaved);
-            $data['success'] = true;
-            $data['message'] = "Successfully created order!";
+            $dataResponse['success'] = true;
+            $dataResponse['message'] = "Successfully created order!";
         } catch (\Exception $exception) {
             Analog::log('Error while saving exchange rates from db: ' . $exception);
-            $data['success'] = false;
-            $data['message'] = "Error while creating order, please contact your admin!";
+            $dataResponse['success'] = false;
+            $dataResponse['message'] = "Error while creating order, please contact your admin!";
         }
 
-        if ($data['success'] && $this->getPurchasedCurrency() === 'GBP') {
+        if ($dataResponse['success'] && $this->getPurchasedCurrency() === 'GBP') {
             try {
                 Mail::send();
             } catch (\Exception $exception) {
@@ -79,7 +79,7 @@ class HomeController extends BaseController
             }
         }
 
-        echo json_encode($data);
+        echo json_encode($dataResponse);
     }
 
     /**
