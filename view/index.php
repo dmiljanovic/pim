@@ -15,9 +15,9 @@ include '_partial/header.php';
                 <div class="form-group">
                     <label for="currency">Currency</label>
                     <select class="custom-select" id="currency">
-                        <option selected>Please select</option>
+                        <option selected value="">Please select</option>
                         <?php foreach ($data as $rate) {?>
-                            <option value="<?php echo $rate['code'] . '_' . $rate['rate'] ?>"><?php echo $rate['code'] ?></option>
+                            <option value="<?php echo $rate['code'] . '_' . $rate['rate'] ?>"><?php echo substr($rate['code'], -3) ?></option>
                         <?php } ?>
                     </select>
                 </div>
@@ -40,16 +40,38 @@ include '_partial/header.php';
     $(document).ready(function () {
         var rate = '';
         var quoteString = '';
+        var amountToBuy = '';
+        var amountToPay = '';
+
+        $("#amount_to_buy").on("change paste keyup", function() {
+            amountToBuy = $(this).val();
+
+            $("#amount_to_pay").val('');
+            $("#info").addClass('d-none');
+        });
+
+        $("select#currency").change(function() {
+            quoteString = $(this).val().slice(0, 6);
+            rate = $(this).val().slice(7);
+
+            $("#amount_to_pay").val('');
+            $("#info").addClass('d-none');
+        });
 
         $("#get_rate").click(function(event) {
             event.preventDefault();
 
             var to = $("select#currency").val();
-            quoteString = to.slice(0, 6);
-            rate = to.slice(7);
 
-            var amountToBuy = $("#amount_to_buy").val();
-            var amountToPay = amountToBuy / rate;
+            if (!to || !amountToBuy) {
+                $("#info_alert").html( '"Amount To Buy" and "Currency" are required!' ).removeClass('d-none');
+                setTimeout(function() {
+                    $("#info_alert").addClass('d-none');
+                }, 2000);
+                return;
+            }
+
+            amountToPay = amountToBuy / rate;
 
             $("#amount_to_pay").val(amountToPay.toFixed(4));
             $("#info").removeClass('d-none');
@@ -57,19 +79,32 @@ include '_partial/header.php';
 
         $("#buy").click(function(event) {
             event.preventDefault();
+            var amountToBuy = $("#amount_to_buy").val();
+            var amountToPay = $("#amount_to_pay").val();
+
+            if (!quoteString || !amountToBuy || !amountToPay) {
+                $("#info_alert")
+                    .html( '"Amount To Buy", "Currency" and "Amount To Pay In USD" are required!' )
+                    .removeClass('d-none');
+                setTimeout(function() {
+                    $("#info_alert").addClass('d-none');
+                    $("#amount_to_pay").val('');
+                    $("#info").addClass('d-none');
+                }, 2000);
+                return;
+            }
             $.ajax({
                 url: "save-data",
                 type: "post",
                 data: {
-                    amount_to_buy: $("#amount_to_buy").val(),
-                    amount_to_pay: $("#amount_to_pay").val(),
+                    amount_to_buy: amountToBuy,
+                    amount_to_pay: amountToPay,
                     rate: rate,
                     quote_string: quoteString
 
                 },
                 success: function (resp) {
                     $("#info_alert").html( resp.message ).removeClass('d-none').delay(2500).slideUp(200, function() {
-                        $(this).alert('close');
                         location.reload();
                     });
                 },

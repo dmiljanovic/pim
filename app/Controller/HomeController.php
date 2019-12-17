@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Helpers\Mail;
 use App\Repository\HomeRepository;
 use App\Repository\ExchangeRatesRepository;
 use Analog\Analog;
@@ -68,6 +69,14 @@ class HomeController extends BaseController
             Analog::log('Error while saving exchange rates from db: ' . $exception);
             $data['success'] = false;
             $data['message'] = "Error while creating order, please contact your admin!";
+        }
+
+        if ($data['success'] && $this->getPurchasedCurrency() === 'GBP') {
+            try {
+                Mail::send();
+            } catch (\Exception $exception) {
+                Analog::log('Error while sending mail: ' . $exception);
+            }
         }
 
         echo json_encode($data);
