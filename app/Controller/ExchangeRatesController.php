@@ -3,8 +3,6 @@
 namespace App\Controller;
 
 use App\Repository\ExchangeRatesRepository;
-use Analog\Analog;
-use Analog\Handler\File;
 
 /**
  * Class ImportDataController
@@ -24,7 +22,6 @@ class ExchangeRatesController
      */
     public function __construct(ExchangeRatesRepository $exchangeRatesRepository)
     {
-        Analog::handler(File::init('/tmp/php.log'));
         $this->repo = $exchangeRatesRepository;
     }
 

@@ -3,6 +3,8 @@
 namespace App\Database;
 
 use PDO;
+use PDOException;
+use Analog\Analog;
 
 /**
  * Class Db
@@ -45,12 +47,19 @@ class Db
      */
     protected static function con()
     {
-        $pdo = new PDO("mysql:host=" . self::$host . ";dbname=" . self::$dbname . ";charset=utf8", self::$user,
-            self::$pass);
-        $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        try {
+            $pdo = new PDO("mysql:host=" . self::$host . ";dbname=" . self::$dbname . ";charset=utf8", self::$user,
+                self::$pass);
+            $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        return $pdo;
+            return $pdo;
+        }
+        catch(PDOException $exception) {
+            Analog::log('Error while trying to connect to db: ' . $exception);
+
+            die('Error while trying to connect to db, please contact your admin.');
+        }
     }
 
     /**
