@@ -12,8 +12,9 @@ class Mail
 {
     /**
      * Method for sending mail with PHPMailer.
+     * @param string $body
      */
-    public static function send(){
+    public static function send($body){
         $mail               = new PHPMailer(); // create a new object
         $mail->IsSMTP(); // enable SMTP
 //        $mail->SMTPDebug    = 1; // debugging: 1 = errors and messages, 2 = messages only
@@ -26,7 +27,7 @@ class Mail
         $mail->Password     = "TestPim78";
         $mail->SetFrom("test.pim8@gmail.com");
         $mail->Subject      = "Test";
-        $mail->Body         = "hello";
+        $mail->Body         = $body;
         $mail->AddAddress("draganm78@ptt.rs");
         $mail->send();
 	}

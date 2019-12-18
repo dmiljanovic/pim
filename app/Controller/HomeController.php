@@ -72,8 +72,9 @@ class HomeController extends BaseController
         }
 
         if ($dataResponse['success'] && $this->getPurchasedCurrency() === 'GBP') {
+            $body = $this->getMailBody($dataToBeSaved);
             try {
-                Mail::send();
+                Mail::send($body);
             } catch (\Exception $exception) {
                 Analog::log('Error while sending mail: ' . $exception);
             }
@@ -186,5 +187,26 @@ class HomeController extends BaseController
         $data = htmlspecialchars($data);
 
         return $data;
+    }
+
+    /**
+     * Method for creating mail body.
+     *
+     * @param array $orderData
+     * @return string
+     */
+    private function getMailBody($orderData)
+    {
+        return '
+        Order Details:<br><br>
+        Foreign currency purchased: ' . $orderData['foreign_currency_purchased'] . '<br>
+        Exchange rate for foreign currency: ' . round($orderData['foreign_currency_exchange_rate'], 4) . '<br>
+        Surcharge percentage: ' . round($orderData['surcharge_percentage'], 2) . '<br>
+        Amount of surcharge: ' . round($orderData['surcharge_amount'], 4) . '<br>
+        Amount of foreign currency purchased: '. round($orderData['foreign_currency_purchased_amount'], 4) . '<br>
+        Discount percentage: ' . round($orderData['discount_percentage'], 2)  . '<br>
+        Discount amount: ' . round($orderData['discount_amount'], 4) . '<br>
+        Amount paid in USD: ' . round($orderData['amount_paid_usd'], 4) . '<br>
+        Date created: ' . $orderData['created_at'];
     }
 }
